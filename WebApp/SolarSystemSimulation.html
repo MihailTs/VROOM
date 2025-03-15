@@ -6,12 +6,41 @@
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
+    #distanceText {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(4, 118, 241);
+      z-index: 10;
+    }
+    #lightDistanceText {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(231, 8, 8);
+      z-index: 10;
+    }
+    #speedSlider {
+      position: absolute;
+      bottom: 20px; /* Positioned at the bottom */
+      left: 50%; /* Centering the slider horizontally */
+      transform: translateX(-50%); /* To truly center it */
+      width: 300px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
+  <div id="distanceText"></div>
+  <div id="lightDistanceText"></div>
+  <input type="range" id="speedSlider" min="0" max="100" value="50">
+  
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
   <script>
-    // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       50,
@@ -24,25 +53,22 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Load textures for Earth, Mars, and the Sun
     const earthTexture = new THREE.TextureLoader().load('2k_earth.jpg');
     const marsTexture = new THREE.TextureLoader().load('2k_mars.jpg');
     const sunTexture = new THREE.TextureLoader().load('2k_sun.jpg');
 
-    // Create the Sun (a large yellow sphere with texture and emissive effect)
     const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({
       map: sunTexture,
-      emissive: 0xFFFFFF,  // Adjusted yellow color
-      emissiveIntensity: 0.5,  // Increased intensity for a more yellow glow
+      emissive: 0xFFFFFF,
+      emissiveIntensity: 0.5,
       roughness: 0.2,
       metalness: 0.5
     });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
 
-    // Create the first planet (Earth-like, size adjusted)
-    const planet1Geometry = new THREE.SphereGeometry(1, 32, 32); // Earth size
+    const planet1Geometry = new THREE.SphereGeometry(1, 32, 32);
     const planet1Material = new THREE.MeshBasicMaterial({
       map: earthTexture,
       emissive: 0xFFFFFF,
@@ -53,11 +79,10 @@
     const planet1 = new THREE.Mesh(planet1Geometry, planet1Material);
     scene.add(planet1);
 
-    // Create the second planet (Mars-like, size adjusted)
-    const planet2Geometry = new THREE.SphereGeometry(0.53, 32, 32); // Mars size
+    const planet2Geometry = new THREE.SphereGeometry(0.53, 32, 32);
     const planet2Material = new THREE.MeshBasicMaterial({
       map: marsTexture,
-      emissive: 0xFF0000,
+      emissive: 0xFFFFFF,
       emissiveIntensity: 0.55,
       roughness: 0.7,
       metalness: 0.3
@@ -65,23 +90,19 @@
     const planet2 = new THREE.Mesh(planet2Geometry, planet2Material);
     scene.add(planet2);
 
-    // Add a light source to illuminate the scene
-    const light = new THREE.PointLight(0xFFFFFF, 1, 100); // White light with intensity
-    light.position.set(0, 5, 15);  // Position it similar to the camera
+    const light = new THREE.PointLight(0xFFFFFF, 1, 100);
+    light.position.set(0, 5, 15);
     scene.add(light);
 
-    // Set the initial camera position
-    camera.position.set(0, 5, 15);
-
-    // Variables to control orbiting speed and radius
     let angle1 = 0;
     let angle2 = 0;
-    const radius1 = 6;
-    const radius2 = 10;
-    const speed2 = 0.005;
-    const speed1 = 0.0094;
+    const radius1 = 8;
+    const radius2 = 12;
 
-    // Create Orbit Lines (path of the planets)
+    const baseSpeed1 = 0.0094;  // Base speed for planet 1
+    const baseSpeed2 = 0.005;   // Base speed for planet 2
+    let speedFactor = 1;
+
     function createOrbit(radius, color) {
       const points = [];
       const segments = 100;
@@ -96,51 +117,62 @@
       return orbit;
     }
 
-    // Create and add white orbits to the scene
-    const orbit1 = createOrbit(radius1, 0xFFFFFF); // White orbit for planet 1 (Earth-like)
+    const orbit1 = createOrbit(radius1, 0xFFFFFF);
     scene.add(orbit1);
 
-    const orbit2 = createOrbit(radius2, 0xFFFFFF); // White orbit for planet 2 (Mars-like)
+    const orbit2 = createOrbit(radius2, 0xFFFFFF);
     scene.add(orbit2);
 
-    // Animation loop
     let cameraAngle = 0;
-    let cameraHeight = 3;
+    let cameraHeight = 2;
+
+    // Update the speed based on slider value
+    const slider = document.getElementById('speedSlider');
+
+    slider.addEventListener('input', function() {
+      speedFactor = THREE.MathUtils.mapLinear(slider.value, 0, 100, 0, 2.5);
+      speedValue.innerText = `Speed: ${slider.value}`;
+    });
+
     function animate() {
       requestAnimationFrame(animate);
 
-      // Update planet positions based on orbit
+      // Apply the speed factor to each planet's base speed
+      const speed1 = baseSpeed1 * speedFactor;
+      const speed2 = baseSpeed2 * speedFactor;
+
       angle1 += speed1;
       angle2 += speed2;
 
-      // Planet 1 orbit around the sun
       planet1.position.x = radius1 * Math.cos(angle1);
       planet1.position.z = radius1 * Math.sin(angle1);
 
-      // Planet 2 orbit around the sun
       planet2.position.x = radius2 * Math.cos(angle2);
       planet2.position.z = radius2 * Math.sin(angle2);
 
-      // Rotate the planets around their own axes
-      planet1.rotation.y += 0.01;  // Rotate Earth around its own axis
-      planet2.rotation.y += 0.01;  // Rotate Mars around its own axis
+      planet1.rotation.y += 0.01;
+      planet2.rotation.y += 0.01;
 
-      // Rotate the Sun around its own axis
-      sun.rotation.y += 0.002;  // Rotate Sun slowly around its own axis
+      sun.rotation.y += 0.002;
 
-      // Update the camera position to rotate around the scene
+      const distance = planet1.position.distanceTo(planet2.position);
+      
+      const mappedDistance1 = THREE.MathUtils.mapLinear(distance, 4, 20, 3, 22); // Map to [3, 22] - light years
+      const mappedDistance2 = THREE.MathUtils.mapLinear(distance, 4, 20, 54600000, 401000000); // Map to [54.6, 401] - Mars to Earth distance
+
+      document.getElementById('distanceText').innerText = `Distance: ${Math.round(mappedDistance2)} kilometers`;
+      document.getElementById('lightDistanceText').innerText = `Distance: ${mappedDistance1.toFixed(1)}   light minutes`;
+
       cameraHeight = 5 + Math.sin(cameraAngle) * 3;
       camera.position.x = 20 * Math.cos(cameraAngle);
       camera.position.z = 20 * Math.sin(cameraAngle);
-      camera.position.y = cameraHeight;
+      camera.position.y = cameraHeight - 1;
       camera.lookAt(sun.position);
 
-      // Render the scene
       renderer.render(scene, camera);
     }
     animate();
 
-    // Responsive resizing
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
