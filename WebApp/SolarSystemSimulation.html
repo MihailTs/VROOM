@@ -24,23 +24,51 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Create the Sun (a large yellow sphere)
+    // Load textures for Earth, Mars, and the Sun
+    const earthTexture = new THREE.TextureLoader().load('2k_earth.jpg');
+    const marsTexture = new THREE.TextureLoader().load('2k_mars.jpg');
+    const sunTexture = new THREE.TextureLoader().load('2k_sun.jpg');
+
+    // Create the Sun (a large yellow sphere with texture and emissive effect)
     const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
-    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+    const sunMaterial = new THREE.MeshBasicMaterial({
+      map: sunTexture,
+      emissive: 0xFFFFFF,  // Adjusted yellow color
+      emissiveIntensity: 0.5,  // Increased intensity for a more yellow glow
+      roughness: 0.2,
+      metalness: 0.5
+    });
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
 
-    // Create the first planet (closer to the sun)
-    const planet1Geometry = new THREE.SphereGeometry(0.5, 16, 16);
-    const planet1Material = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+    // Create the first planet (Earth-like, size adjusted)
+    const planet1Geometry = new THREE.SphereGeometry(1, 32, 32); // Earth size
+    const planet1Material = new THREE.MeshBasicMaterial({
+      map: earthTexture,
+      emissive: 0xFFFFFF,
+      emissiveIntensity: 0.55,
+      roughness: 0.5,
+      metalness: 0.1
+    });
     const planet1 = new THREE.Mesh(planet1Geometry, planet1Material);
     scene.add(planet1);
 
-    // Create the second planet (farther from the sun)
-    const planet2Geometry = new THREE.SphereGeometry(0.8, 16, 16);
-    const planet2Material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    // Create the second planet (Mars-like, size adjusted)
+    const planet2Geometry = new THREE.SphereGeometry(0.53, 32, 32); // Mars size
+    const planet2Material = new THREE.MeshBasicMaterial({
+      map: marsTexture,
+      emissive: 0xFF0000,
+      emissiveIntensity: 0.55,
+      roughness: 0.7,
+      metalness: 0.3
+    });
     const planet2 = new THREE.Mesh(planet2Geometry, planet2Material);
     scene.add(planet2);
+
+    // Add a light source to illuminate the scene
+    const light = new THREE.PointLight(0xFFFFFF, 1, 100); // White light with intensity
+    light.position.set(0, 5, 15);  // Position it similar to the camera
+    scene.add(light);
 
     // Set the initial camera position
     camera.position.set(0, 5, 15);
@@ -68,11 +96,11 @@
       return orbit;
     }
 
-    // Create and add orbits to the scene
-    const orbit1 = createOrbit(radius1, 0x0000FF);
+    // Create and add white orbits to the scene
+    const orbit1 = createOrbit(radius1, 0xFFFFFF); // White orbit for planet 1 (Earth-like)
     scene.add(orbit1);
 
-    const orbit2 = createOrbit(radius2, 0xFF0000);
+    const orbit2 = createOrbit(radius2, 0xFFFFFF); // White orbit for planet 2 (Mars-like)
     scene.add(orbit2);
 
     // Animation loop
@@ -92,6 +120,13 @@
       // Planet 2 orbit around the sun
       planet2.position.x = radius2 * Math.cos(angle2);
       planet2.position.z = radius2 * Math.sin(angle2);
+
+      // Rotate the planets around their own axes
+      planet1.rotation.y += 0.01;  // Rotate Earth around its own axis
+      planet2.rotation.y += 0.01;  // Rotate Mars around its own axis
+
+      // Rotate the Sun around its own axis
+      sun.rotation.y += 0.002;  // Rotate Sun slowly around its own axis
 
       // Update the camera position to rotate around the scene
       cameraHeight = 5 + Math.sin(cameraAngle) * 3;
