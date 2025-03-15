@@ -143,7 +143,7 @@ function animate() {
   animateCursor();
 
   // Three.js scene animation
-  sphere.rotation.y += 0.005;
+  sphere.rotation.y += 0.003;
   checkCursor(); // Check cursor interaction
   renderer.render(scene, camera);
 }
