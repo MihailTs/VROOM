@@ -13,7 +13,7 @@ const app = express();
 
 if (process.env.NODE_ENV === 'production'){
   app.use("/camera", express.static("camera"))
-  app.use("/camera-client", express.static("camera-client", "camera-client"))
+  app.use("/camera-client", express.static("camera-client"))
 }
 
 app.use(cors());
