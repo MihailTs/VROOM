@@ -4,25 +4,25 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Създаване на геометрия и материал
-const geometry = new THREE.SphereGeometry(1.5, 30, 30); // увеличаваме размера на сферата
-const texture = new THREE.TextureLoader().load('2k_mars.jpg'); // зареждаме текстурата на Марс
+// Create geometry and material
+const geometry = new THREE.SphereGeometry(2, 30, 30); // increase the sphere size
+const texture = new THREE.TextureLoader().load('mars_texture.jpg'); // load Mars texture
 
 const material = new THREE.MeshStandardMaterial({
-  map: texture, // прилагаме текстурата
+  map: texture, 
 });
 
-// Създаване на сфера с новия материал
+// Create the sphere with the new material
 const sphere = new THREE.Mesh(geometry, material);
 scene.add(sphere);
 
-// Светлина
-const light = new THREE.AmbientLight(0x404040, 15); 
+// Light
+const light = new THREE.AmbientLight(0x404040, 30);
 scene.add(light);
 
 camera.position.z = 5;
 
-// Партикулен фон (звезди)
+// Particle background (stars)
 const starsGeometry = new THREE.BufferGeometry();
 const starCount = 1000;
 const positions = [];
@@ -36,50 +36,91 @@ const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3 });
 const stars = new THREE.Points(starsGeometry, starsMaterial);
 scene.add(stars);
 
-// Raycaster и сцена на курсора
+// Raycaster and cursor scene
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// // Слушаме за движение на мишката
-// document.addEventListener('mousemove', (event) => {
-//   // Преобразуваме координатите на мишката в нормализирани координати на сцена (-1 до 1)
-//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-//   mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-// });
+// Cursor logic
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2; // Cursor starts at the center
+let outerX = mouseX, outerY = mouseY; // Current position of outer diamond
+const parallaxOffset = 15; // Strength of parallax effect
+const smoothness = 0.1; // Smoothness factor
+const elasticity = 0.2; // Elastic effect strength (how far it stretches beyond boundaries)
 
-const cursor = document.getElementById('cursor');
+const cursorOuter = document.querySelector('.cursor-outer');
+const cursorInner = document.querySelector('.cursor-inner');
+const text = document.querySelector('.text');
+const boundary = document.querySelector('.boundary');
 
+// Boundary area
+const boundaryRect = boundary.getBoundingClientRect();
+const boundaryCenterX = boundaryRect.left + boundaryRect.width / 2;
+const boundaryCenterY = boundaryRect.top + boundaryRect.height / 2;
+const boundaryRadius = boundaryRect.width / 2;
+
+function applyElasticEffect(x, y) {
+  const dx = x - boundaryCenterX;
+  const dy = y - boundaryCenterY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // If outside the circle — pull cursor toward center
+  if (distance > boundaryRadius) {
+    return { x: boundaryCenterX, y: boundaryCenterY };
+  }
+
+  return { x, y };
+}
+
+// Cursor animation function
+function animateCursor() {
+  // Apply elastic effect
+  const elasticPos = applyElasticEffect(mouseX, mouseY);
+  const elasticX = elasticPos.x;
+  const elasticY = elasticPos.y;
+
+  // Smooth follow of outer diamond
+  outerX += (elasticX - outerX) * smoothness;
+  outerY += (elasticY - outerY) * smoothness;
+
+  // Parallax effect
+  const offsetX = (elasticX - window.innerWidth / 2) / parallaxOffset;
+  const offsetY = (elasticY - window.innerHeight / 2) / parallaxOffset;
+
+  cursorOuter.style.left = `${outerX - cursorOuter.offsetWidth / 2 + offsetX}px`;
+  cursorOuter.style.top = `${outerY - cursorOuter.offsetHeight / 2 + offsetY}px`;
+
+  // Inner diamond follows the mouse exactly
+  cursorInner.style.left = `${elasticX - cursorInner.offsetWidth / 2}px`;
+  cursorInner.style.top = `${elasticY - cursorInner.offsetHeight / 2}px`;
+
+  // Text follows the mouse exactly
+  text.style.left = `${elasticX}px`;
+  text.style.top = `${elasticY}px`;
+}
+
+// Listen to mouse movement
 document.addEventListener('mousemove', (e) => {
-  cursor.style.left = `${e.clientX}px`;
-  cursor.style.top = `${e.clientY}px`;
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  // Convert mouse coordinates for Three.js
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
-
-// Проверка за пресичане с курсора
+// Cursor intersection check
 function checkCursor() {
-  // Уверяваме се, че камерата е правилно инициализирана
-  raycaster.setFromCamera(mouse, camera);  
-
-  // Преглеждаме за пресичане със сферата
+  raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObject(sphere);
 
   if (intersects.length > 0) {
-    // Курсорът е върху сферата
-    document.body.style.cursor = 'pointer';  // Променяме курсора
+    document.body.style.cursor = 'pointer';
   } else {
-    // Курсорът не е върху сферата
-    document.body.style.cursor = 'auto';  // Връщаме обикновения курсор
+    document.body.style.cursor = 'auto'; 
   }
 }
 
-// parallax effect
-// document.addEventListener('mousemove', (e) => {
-//   const x = (e.clientX / window.innerWidth - 0.5) * 2;
-//   const y = -(e.clientY / window.innerHeight - 0.5) * 2;
-//   gsap.to(camera.rotation, { x: y * 0.1, y: x * 0.1, duration: 0.5 });
-// });
-
-// Клик → zoom ефект към сферата
+// Click → zoom effect on sphere
 let zoomed = false;
 document.addEventListener('click', () => {
   if (zoomed) return;
@@ -89,23 +130,27 @@ document.addEventListener('click', () => {
     duration: 2,
     ease: "power2.inOut",
     onComplete: () => {
-      // може да се смени сцена, фон и т.н.
       gsap.to(camera.position, { z: 5, duration: 1, delay: 1 });
     }
   });
 });
 
-// Анимация
+// Animation loop
 function animate() {
   requestAnimationFrame(animate);
+
+  // Cursor animation
+  animateCursor();
+
+  // Three.js scene animation
   sphere.rotation.y += 0.005;
-  checkCursor();  // Проверяваме за курсора
+  checkCursor(); // Check cursor interaction
   renderer.render(scene, camera);
 }
 
 animate();
 
-// Resize
+// Resize handler
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
