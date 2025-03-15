@@ -40,7 +40,6 @@
   <input type="range" id="speedSlider" min="0" max="100" value="50">
   
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script>
 
   <script>
     const scene = new THREE.Scene();
@@ -54,6 +53,8 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls( camera, renderer.domElement );
 
     const starsGeometry = new THREE.BufferGeometry();
     const starCount = 3000;
@@ -152,6 +153,7 @@
 
     function animate() {
       requestAnimationFrame(animate);
+      // controls.update();
 
       // Apply the speed factor to each planet's base speed
       const speed1 = baseSpeed1 * speedFactor;
