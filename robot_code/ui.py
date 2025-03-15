@@ -45,4 +45,7 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     root.bind("<Right>", lambda e : on_button_click())
     root.bind("<Escape>", lambda e : root.quit())
 
+    root.bind("<KeyPress>", lambda e: print("Key pressed"))
+    root.bind("<KeyRelease>", lambda e: print("Key released"))
+
     root.mainloop()
