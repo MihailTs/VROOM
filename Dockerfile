@@ -9,10 +9,12 @@ COPY camera-client /app/camera-client
 COPY certs /app/camera-client/certs
 
 WORKDIR /app/camera
+ENV VITE_APP_BASE_PATH="/camera/assets/"
 RUN pnpm install
 RUN pnpm run build
 
 WORKDIR /app/camera-client
+ENV VITE_APP_BASE_PATH="/camera-client/assets/"
 RUN pnpm install
 RUN pnpm run build
 
