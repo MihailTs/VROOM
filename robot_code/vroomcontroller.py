@@ -17,11 +17,11 @@ class VROOMController:
         self._right_motor.run(power=30, regulated=True)
 
     def move_left(self):
-        self._right_motor.run(power=60, regulated=True)
+        self._right_motor.run(power=40, regulated=True)
         self._left_motor.brake()
 
     def move_right(self):
-        self._left_motor.run(power=60, regulated=True)
+        self._left_motor.run(power=40, regulated=True)
         self._right_motor.brake()
 
     def stop(self):

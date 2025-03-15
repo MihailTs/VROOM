@@ -45,10 +45,10 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     s.theme_use('black')
     s.theme_use()
 
-    root.bind("<Down>", lambda e: on_button_click())
-    root.bind("<Right>", lambda e : on_button_click_three())
-    root.bind("<Up>", lambda e : on_button_click_two())
-    root.bind("<Left>", lambda e : on_button_click_four())
+    root.bind("<Up>", lambda e: on_button_click())
+    root.bind("<Left>", lambda e : on_button_click_three())
+    root.bind("<Down>", lambda e : on_button_click_two())
+    root.bind("<Right>", lambda e : on_button_click_four())
     root.bind("<Escape>", lambda e : vroom_controller.stop())
 
     root.bind("<KeyPress>", lambda e: print("Key pressed"))
