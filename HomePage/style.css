@@ -1,0 +1,70 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    cursor: none; /* скрива системния курсор */
+    font-family: Arial, sans-serif;
+  }
+  
+  canvas {
+    display: block;
+  }
+  
+  .custom-cursor {
+    /* position: fixed;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, background 0.2s;
+    z-index: 9999;
+    mix-blend-mode: difference; */
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 255, 255, 0.7); /* Твоят цвят на курсора */
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); /* Диамантена форма */
+    pointer-events: none; /* Няма да влияе на кликовете */
+    z-index: 9999;
+    transform: translate(-50%, -50%); /* Центрира курсора */
+    transition: transform 0.1s ease, opacity 0.2s ease; /* Анимация за трансформация и видимост */
+   /* Скриваме го по подразбиране */
+  }
+  
+  .custom-cursor.hovering {
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  
+
+/* testing */
+
+#diamond-text {
+  color: cyan; /* Цветът на диаманта */
+  font-size: 10px;
+}
+
+.enter-text {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  text-align: center;
+  color: white;
+  opacity: 0;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+.enter-text.show {
+  opacity: 1; /* Показва текста */
+}
+
+/*  */
+
