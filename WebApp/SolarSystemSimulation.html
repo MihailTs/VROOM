@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Three.js Solar System with Orbits and Moving Camera</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script>
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.5,
+      1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create the Sun (a large yellow sphere)
+    const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    scene.add(sun);
+
+    // Create the first planet (closer to the sun)
+    const planet1Geometry = new THREE.SphereGeometry(0.5, 16, 16);
+    const planet1Material = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+    const planet1 = new THREE.Mesh(planet1Geometry, planet1Material);
+    scene.add(planet1);
+
+    // Create the second planet (farther from the sun)
+    const planet2Geometry = new THREE.SphereGeometry(0.8, 16, 16);
+    const planet2Material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    const planet2 = new THREE.Mesh(planet2Geometry, planet2Material);
+    scene.add(planet2);
+
+    // Set the initial camera position
+    camera.position.set(0, 5, 15);
+
+    // Variables to control orbiting speed and radius
+    let angle1 = 0;
+    let angle2 = 0;
+    const radius1 = 6;
+    const radius2 = 10;
+    const speed2 = 0.005;
+    const speed1 = 0.0094;
+
+    // Create Orbit Lines (path of the planets)
+    function createOrbit(radius, color) {
+      const points = [];
+      const segments = 100;
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        points.push(new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle)));
+      }
+
+      const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const orbitMaterial = new THREE.LineBasicMaterial({ color: color, opacity: 0.7, transparent: true, linewidth: 3 });
+      const orbit = new THREE.LineLoop(orbitGeometry, orbitMaterial);
+      return orbit;
+    }
+
+    // Create and add orbits to the scene
+    const orbit1 = createOrbit(radius1, 0x0000FF);
+    scene.add(orbit1);
+
+    const orbit2 = createOrbit(radius2, 0xFF0000);
+    scene.add(orbit2);
+
+    // Animation loop
+    let cameraAngle = 0;
+    let cameraHeight = 3;
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Update planet positions based on orbit
+      angle1 += speed1;
+      angle2 += speed2;
+
+      // Planet 1 orbit around the sun
+      planet1.position.x = radius1 * Math.cos(angle1);
+      planet1.position.z = radius1 * Math.sin(angle1);
+
+      // Planet 2 orbit around the sun
+      planet2.position.x = radius2 * Math.cos(angle2);
+      planet2.position.z = radius2 * Math.sin(angle2);
+
+      // Update the camera position to rotate around the scene
+      cameraHeight = 5 + Math.sin(cameraAngle) * 3;
+      camera.position.x = 20 * Math.cos(cameraAngle);
+      camera.position.z = 20 * Math.sin(cameraAngle);
+      camera.position.y = cameraHeight;
+      camera.lookAt(sun.position);
+
+      // Render the scene
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Responsive resizing
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
