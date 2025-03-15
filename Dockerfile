@@ -4,7 +4,9 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 COPY camera /app/camera
+COPY certs /app/camera/certs
 COPY camera-client /app/camera-client
+COPY certs /app/camera-client/certs
 
 WORKDIR /app/camera
 RUN pnpm install
