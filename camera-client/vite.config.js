@@ -10,6 +10,5 @@ export default defineConfig({
     },
     port: 5173, // Adjust port as needed
     host: '0.0.0.0',
-    base: process.env.VITE_APP_BASE_PATH || '/'
   },
 });
