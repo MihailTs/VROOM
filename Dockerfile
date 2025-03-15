@@ -18,6 +18,7 @@ RUN pnpm run build
 
 WORKDIR /app
 COPY server /app/server
+COPY certs /app/server/certs
 
 WORKDIR /app/server
 RUN pnpm install
@@ -31,7 +32,7 @@ RUN npm install -g pnpm
 COPY --from=build /app/server /app
 COPY --from=build  /app/camera/dist /app/camera
 COPY --from=build  /app/camera-client/dist /app/camera-client
-COPY certs /app/certs
+
 
 
 EXPOSE 3000
