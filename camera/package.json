@@ -10,5 +10,9 @@
   },
   "devDependencies": {
     "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "peerjs": "^1.5.4",
+    "socket.io-client": "^4.8.1"
   }
 }
