@@ -16,7 +16,12 @@ myPeer.on("open", () => {
 
   socket.on("camera", (clientId) => {
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia({
+        video: {
+          facingMode: "environment",
+        },
+        audio: false
+      })
       .then((localStream) => {
         const call = myPeer.call(clientId, localStream);
 
