@@ -28,10 +28,10 @@ FROM node:22 AS runtime
 WORKDIR /app
 RUN npm install -g pnpm
 
-COPY --from=build /app/server /app/server
-COPY --from=build  /app/camera/dist /app/server/camera
-COPY --from=build  /app/camera-client/dist /app/server/camera-client
-COPY certs /app/server/certs
+COPY --from=build /app/server /app
+COPY --from=build  /app/camera/dist /app/camera
+COPY --from=build  /app/camera-client/dist /app/camera-client
+COPY certs /app/certs
 
 
 EXPOSE 3000
