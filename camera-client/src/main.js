@@ -49,7 +49,7 @@ myPeer.on("open", () => {
       cameras.set(call.peer, camera);
 
       const frameBuffer = [];
-      const delay = 1000; // Delay in milliseconds
+      const delay = 5000; // Delay in milliseconds
 
       const writer = generator.writable.getWriter();
 

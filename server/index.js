@@ -3,6 +3,7 @@ import https from "https";
 import fs from "fs";
 import { Server } from "socket.io";
 import cors from "cors";
+import { env } from "process";
 
 const options = {
   key: fs.readFileSync("certs/private-key.pem"),
@@ -10,6 +11,12 @@ const options = {
 };
 
 const app = express();
+
+if (process.env.NODE_ENV === 'production'){
+  app.use(express.static("camera", "camera"))
+  app.use(express.static("camera-client", "camera-client"))
+}
+
 app.use(cors());
 
 const server = https.createServer(options, app);
