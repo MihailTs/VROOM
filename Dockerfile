@@ -33,8 +33,6 @@ COPY --from=build /app/server /app
 COPY --from=build  /app/camera/dist /app/camera
 COPY --from=build  /app/camera-client/dist /app/camera-client
 
-
-
 EXPOSE 3000
 
 ENV NODE_ENV=production
