@@ -10,11 +10,11 @@ COPY certs /app/camera-client/certs
 
 WORKDIR /app/camera
 RUN pnpm install
-RUN pnpm run build -- --base=/camera/
+RUN pnpm run build --base /camera/
 
 WORKDIR /app/camera-client
 RUN pnpm install
-RUN pnpm run build -- --base=/camera-client/
+RUN pnpm run build --base /camera-client/
 
 WORKDIR /app
 COPY server /app/server
