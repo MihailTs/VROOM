@@ -13,6 +13,12 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     def on_button_click_two():
         vroom_controller.move_reverse()
 
+    def on_button_click_three():
+        vroom_controller.move_left()
+
+    def on_button_click_four():
+        vroom_controller.move_right()
+
     root = ThemedTk()
     root.title("Rover Controller")
 
@@ -31,7 +37,7 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     back = tk.Button(root, text="v", command=on_button_click)
     back.grid(column=1, row=1, sticky="nsew")
 
-    right = tk.Button(root, text="->", command=on_button_click)
+    right = tk.Button(root, text="->", command=vroom_controller.stop)
     right.grid(column=2, row=1, sticky="nsew")
 
     s = ttk.Style()
@@ -39,11 +45,11 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     s.theme_use('black')
     s.theme_use()
 
-    root.bind("<Up>", lambda e: on_button_click())
-    root.bind("<Left>", lambda e : on_button_click())
-    root.bind("<Down>", lambda e : on_button_click_two())
-    root.bind("<Right>", lambda e : on_button_click())
-    root.bind("<Escape>", lambda e : root.quit())
+    root.bind("<Down>", lambda e: on_button_click())
+    root.bind("<Right>", lambda e : on_button_click_three())
+    root.bind("<Up>", lambda e : on_button_click_two())
+    root.bind("<Left>", lambda e : on_button_click_four())
+    root.bind("<Escape>", lambda e : vroom_controller.stop())
 
     root.bind("<KeyPress>", lambda e: print("Key pressed"))
     root.bind("<KeyRelease>", lambda e: print("Key released"))
