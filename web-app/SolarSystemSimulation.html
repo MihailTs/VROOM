@@ -40,6 +40,8 @@
   <input type="range" id="speedSlider" min="0" max="100" value="50">
   
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script>
+
   <script>
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -52,6 +54,20 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
+    const starsGeometry = new THREE.BufferGeometry();
+    const starCount = 3000;
+    const starPositions = [];
+    for (let i = 0; i < starCount; i++) {
+      const x = (Math.random() - 0.5) * 1000;
+      const y = (Math.random() - 0.5) * 1000;
+      const z = (Math.random() - 0.5) * 1000;
+      starPositions.push(x, y, z);
+    }
+    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+    const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.0 });
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
 
     const earthTexture = new THREE.TextureLoader().load('2k_earth.jpg');
     const marsTexture = new THREE.TextureLoader().load('2k_mars.jpg');
