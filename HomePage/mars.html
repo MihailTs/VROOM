@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Марс</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script type="module">
+// Зареждаме Three.js и OrbitControls
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/controls/OrbitControls.js';
+
+// Създаване на сцена
+const scene = new THREE.Scene();
+
+// Създаване на камера
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 3;
+
+// Създаване на рендерер
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Добавяне на светлина
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 5, 5);
+scene.add(light);
+
+// Създаване на геометрия (сфера)
+const geometry = new THREE.SphereGeometry(1, 64, 64);
+const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const sphere = new THREE.Mesh(geometry, material);
+scene.add(sphere);
+
+// Добавяне на OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+
+// Анимация
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Обновяваме контролите
+  controls.update();  // само ако използваме движение или мащабиране, за да се синхронизира с анимацията
+
+  // Рендериране на сцената
+  renderer.render(scene, camera);
+}
+
+animate();
+
+  </script>
+</body>
+</html>
