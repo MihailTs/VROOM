@@ -3,11 +3,6 @@ import https from "https";
 import fs from "fs";
 import { Server } from "socket.io";
 import cors from "cors";
-import { env } from "process";
-
-while(true){
-
-}
 
 const options = {
   key: fs.readFileSync("certs/private-key.pem"),
