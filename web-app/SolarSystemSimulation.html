@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Three.js Solar System with Orbits and Moving Camera</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #distanceText {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(4, 118, 241);
+      z-index: 10;
+    }
+    #lightDistanceText {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: rgb(231, 8, 8);
+      z-index: 10;
+    }
+    #speedSlider {
+      position: absolute;
+      bottom: 20px; /* Positioned at the bottom */
+      left: 50%; /* Centering the slider horizontally */
+      transform: translateX(-50%); /* To truly center it */
+      width: 300px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="distanceText"></div>
+  <div id="lightDistanceText"></div>
+  <input type="range" id="speedSlider" min="0" max="100" value="50">
+  
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.5,
+      1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const starsGeometry = new THREE.BufferGeometry();
+    const starCount = 3000;
+    const starPositions = [];
+    for (let i = 0; i < starCount; i++) {
+      const x = (Math.random() - 0.5) * 1000;
+      const y = (Math.random() - 0.5) * 1000;
+      const z = (Math.random() - 0.5) * 1000;
+      starPositions.push(x, y, z);
+    }
+    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+    const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.0 });
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+
+    const earthTexture = new THREE.TextureLoader().load('2k_earth.jpg');
+    const marsTexture = new THREE.TextureLoader().load('2k_mars.jpg');
+    const sunTexture = new THREE.TextureLoader().load('2k_sun.jpg');
+
+    const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({
+      map: sunTexture,
+      emissive: 0xFFFFFF,
+      emissiveIntensity: 0.5,
+      roughness: 0.2,
+      metalness: 0.5
+    });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    scene.add(sun);
+
+    const planet1Geometry = new THREE.SphereGeometry(1, 32, 32);
+    const planet1Material = new THREE.MeshBasicMaterial({
+      map: earthTexture,
+      emissive: 0xFFFFFF,
+      emissiveIntensity: 0.55,
+      roughness: 0.5,
+      metalness: 0.1
+    });
+    const planet1 = new THREE.Mesh(planet1Geometry, planet1Material);
+    scene.add(planet1);
+
+    const planet2Geometry = new THREE.SphereGeometry(0.53, 32, 32);
+    const planet2Material = new THREE.MeshBasicMaterial({
+      map: marsTexture,
+      emissive: 0xFFFFFF,
+      emissiveIntensity: 0.55,
+      roughness: 0.7,
+      metalness: 0.3
+    });
+    const planet2 = new THREE.Mesh(planet2Geometry, planet2Material);
+    scene.add(planet2);
+
+    const light = new THREE.PointLight(0xFFFFFF, 1, 100);
+    light.position.set(0, 5, 15);
+    scene.add(light);
+
+    let angle1 = 0;
+    let angle2 = 0;
+    const radius1 = 8;
+    const radius2 = 12;
+
+    const baseSpeed1 = 0.0094;  // Base speed for planet 1
+    const baseSpeed2 = 0.005;   // Base speed for planet 2
+    let speedFactor = 1;
+
+    function createOrbit(radius, color) {
+      const points = [];
+      const segments = 100;
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        points.push(new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle)));
+      }
+
+      const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+      const orbitMaterial = new THREE.LineBasicMaterial({ color: color, opacity: 0.7, transparent: true, linewidth: 3 });
+      const orbit = new THREE.LineLoop(orbitGeometry, orbitMaterial);
+      return orbit;
+    }
+
+    const orbit1 = createOrbit(radius1, 0xFFFFFF);
+    scene.add(orbit1);
+
+    const orbit2 = createOrbit(radius2, 0xFFFFFF);
+    scene.add(orbit2);
+
+    let cameraAngle = 0;
+    let cameraHeight = 2;
+
+    // Update the speed based on slider value
+    const slider = document.getElementById('speedSlider');
+
+    slider.addEventListener('input', function() {
+      speedFactor = THREE.MathUtils.mapLinear(slider.value, 0, 100, 0, 2.5);
+      speedValue.innerText = `Speed: ${slider.value}`;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      // controls.update();
+
+      // Apply the speed factor to each planet's base speed
+      const speed1 = baseSpeed1 * speedFactor;
+      const speed2 = baseSpeed2 * speedFactor;
+
+      angle1 += speed1;
+      angle2 += speed2;
+
+      planet1.position.x = radius1 * Math.cos(angle1);
+      planet1.position.z = radius1 * Math.sin(angle1);
+
+      planet2.position.x = radius2 * Math.cos(angle2);
+      planet2.position.z = radius2 * Math.sin(angle2);
+
+      planet1.rotation.y += 0.01;
+      planet2.rotation.y += 0.01;
+
+      sun.rotation.y += 0.002;
+
+      const distance = planet1.position.distanceTo(planet2.position);
+      
+      const mappedDistance1 = THREE.MathUtils.mapLinear(distance, 4, 20, 3, 22); // Map to [3, 22] - light years
+      const mappedDistance2 = THREE.MathUtils.mapLinear(distance, 4, 20, 54600000, 401000000); // Map to [54.6, 401] - Mars to Earth distance
+
+      document.getElementById('distanceText').innerText = `Distance: ${Math.round(mappedDistance2)} kilometers`;
+      document.getElementById('lightDistanceText').innerText = `Distance: ${mappedDistance1.toFixed(1)}   light minutes`;
+
+      cameraHeight = 5 + Math.sin(cameraAngle) * 3;
+      camera.position.x = 20 * Math.cos(cameraAngle);
+      camera.position.z = 20 * Math.sin(cameraAngle);
+      camera.position.y = cameraHeight - 1;
+      camera.lookAt(sun.position);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
