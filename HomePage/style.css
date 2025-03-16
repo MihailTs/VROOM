@@ -1,0 +1,124 @@
+*{
+  font-family: 'Tektur', sans-serif;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: Arial, sans-serif;
+    /* height: 100vh; */
+  }
+  
+  canvas {
+    display: block;
+  }
+  
+
+/* cursor */
+  .boundary {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; 
+    height: 500px; 
+    /* pointer-events: none; */
+  } 
+  
+  .cursor-outer,
+  .cursor-inner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 1px solid black;
+    transform: rotate(45deg);
+    pointer-events: none;
+    transition: transform 0.1s ease-out;
+  }
+  
+  .cursor-inner {
+    width: 5px;
+    height: 5px;
+    border-color: rgba(162, 87, 11, 0.5); 
+    background-color: rgba(226, 117, 8, 0.5); 
+  }
+
+  .text {
+    position: absolute;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: white;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, -50%); 
+    display: flex;
+    gap: 40px; /* Word spacing  */
+  }
+
+  /* header */
+h1{
+  color: white;
+  text-align: center;
+  font-size: 50px;
+  position: absolute;
+  left: 37%;
+  letter-spacing: 20px;
+}
+
+  /* adding the div-s */
+  .left-panel,
+.right-panel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 250px; 
+  background-color: rgba(255, 255, 255, 0.1); 
+  border: 2px solid rgba(255, 255, 255, 0.2); 
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 17px;
+  color: white;
+  border-radius: 15px;
+  }
+
+.left-panel {
+  left: 7%;
+  text-align: center;
+}
+
+.right-panel {
+  right: 8%; 
+  display: flex;
+  flex-direction: column; /* Подрежда елементите едно под друго */
+  align-items: flex-end; /* Подравнява елементите надясно */
+  gap: 10px; /* Разстояние между елементите */
+  padding: 20px; 
+  padding-right: 80px;
+  background-color: transparent; 
+  border:none; 
+  
+}
+
+.fact-one,
+.fact-two,
+.fact-three {
+  text-align: right; 
+
+}
+
+h2 {
+  margin: 0; /* Премахва подразбиращите се margins на h2 */
+  font-size: 18px;
+  color: white;
+}
+
+p {
+  margin: 5px 0 0 0; /* Добавя малко разстояние между h2 и p */
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8); /* Леко прозрачен текст */
+}

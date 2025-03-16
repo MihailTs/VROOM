@@ -9,6 +9,12 @@ dt = 0
 clock = pygame.time.Clock()
 FPS = 60
 
+<<<<<<< HEAD
+=======
+delayQueue = []
+
+
+>>>>>>> 4bf8641dc3ffb2350ae62d63b8caad6529206d64
 class VroomPrediction (pygame.sprite.Sprite):
     def __init__(self):
         super(VroomPrediction, self).__init__()
@@ -31,19 +37,21 @@ class VroomPrediction (pygame.sprite.Sprite):
     def stop(self):
         self.velocity = pygame.math.Vector2(0, 0)
 
-    def keydown(self, key):
-        if key == pygame.K_UP:
-            self.move_straight()
-        if key == pygame.K_DOWN:
-            self.move_reverse()
-
-    def keyup(self, key):
-        if key == pygame.K_UP or key == pygame.K_DOWN:
-            self.stop()
+    def key(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.move_straight();
+            if event.key == pygame.K_DOWN:
+                self.move_reverse();
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                self.stop()
 
 vroom = VroomPrediction()
+real_vroom = VroomPrediction()
 
 while True:
+    current_time = pygame.time.get_ticks()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -52,14 +60,25 @@ while True:
             if event.key == pygame.K_q:
                 pygame.quit()
                 sys.exit()
+<<<<<<< HEAD
             vroom.keydown(event.key)
         if event.type == pygame.KEYUP:
             vroom.keyup(event.key)
         delayqueue.push(event)
+=======
+        vroom.key(event)
+        delayQueue.append([event, current_time + 2000])
+    while(delayQueue and delayQueue[0][1] <= current_time):
+        event = delayQueue.pop(0)[0]
+        real_vroom.key(event)
+    
+>>>>>>> 4bf8641dc3ffb2350ae62d63b8caad6529206d64
     screen.fill((255, 255, 255))
 
     vroom.update()
+    real_vroom.update()
     screen.blit(vroom.image, vroom.rect)
+    screen.blit(real_vroom.image, real_vroom.rect)
 
     dt = clock.tick(FPS) / 1000
     pygame.display.update()
