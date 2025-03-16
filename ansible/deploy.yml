@@ -93,8 +93,14 @@
       copy:
         content: "VITE_SIGNALING_SERVER=https://{{ inventory_hostname }}"
         dest: "/home/ubuntu/signal_server/camera-client/.env"
-
- 
+    - name: Stop existing Docker container
+      docker_container:
+        name: "signal_server"
+        state: absent
+    - name: Remove a Docker image
+      docker_image:
+        name: "signal_server"
+        state: absent
 
     - name: Build Docker image from the Dockerfile
       docker_image:
@@ -105,12 +111,6 @@
           args:
             VITE_SIGNALING_SERVER: "https://{{ inventory_hostname }}"
         source: build
-
-    - name: Stop existing Docker container
-      docker_container:
-        name: "signal_server"
-        state: absent
-
     - name: Run Docker container
       docker_container:
         name: "signal_server"

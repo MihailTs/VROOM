@@ -3,13 +3,13 @@ import { Peer } from "peerjs";
 
 let cam = null;
 
-const app = document.getElementById("app")
+const app = document.getElementById("app");
 const front = document.getElementById("front");
 const back = document.getElementById("back");
 
 function clearButtons() {
-  app.removeChild(front)
-  app.removeChild(back)
+  app.removeChild(front);
+  app.removeChild(back);
 }
 
 function cameraStream() {
@@ -31,6 +31,8 @@ function cameraStream() {
         .getUserMedia({
           video: {
             facingMode: cam,
+            width: 400,
+            height: 600,
           },
           audio: false,
         })
@@ -79,14 +81,14 @@ function cameraStream() {
   });
 }
 
-front.onclick = (e) =>{
-  cam = "user"
-  clearButtons()
-  cameraStream()
-}
+front.onclick = (e) => {
+  cam = "user";
+  clearButtons();
+  cameraStream();
+};
 
-back.onclick = (e) =>{
-  cam = "environment"
-  clearButtons()
-  cameraStream()
-}
+back.onclick = (e) => {
+  cam = "environment";
+  clearButtons();
+  cameraStream();
+};
