@@ -4,13 +4,15 @@ from math import *
 import nxt.locator
 from vroomcontroller import VROOMController
 
+cameraPos = pygame.math.Vector2(0, 0)
+
 class VroomPrediction (pygame.sprite.Sprite):
     def __init__(self, color = (255, 0, 0)):
         super(VroomPrediction, self).__init__()
         self.image = pygame.Surface((64, 64), pygame.SRCALPHA)
         pygame.draw.polygon(self.image, color, [(0, 64), (64, 64), (32, 0)])
         self.original_image = self.image
-        self.position = pygame.math.Vector2(320, 240)
+        self.position = pygame.math.Vector2(500, 540)
         self.rect = self.image.get_rect(topleft=self.position)
         self.rotation = 0
         self.w = 0
@@ -21,8 +23,7 @@ class VroomPrediction (pygame.sprite.Sprite):
         self.position += self.velocity * dt
         self.rotation += self.w * dt
         self.image = pygame.transform.rotate(self.original_image, self.rotation)
-        self.rect = self.image.get_rect(center=self.position)
-        #self.rect.update(self.position.x, self.position.y, self.rect.width, self.rect.height)
+        self.rect = self.image.get_rect(center=self.position - cameraPos)
     
     def move_straight(self):
         rotation = self.rotation * pi / 180
@@ -91,6 +92,28 @@ class Vroom(VroomPrediction):
     def on_obstacle_detected(self, flag):
         self.is_obstacle_detected = flag
 
+
+ground_color = (20, 40, 30);
+
+class Ground(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Ground, self).__init__()
+        self.image = pygame.Surface((1000, 1000))
+        self.image.fill((255, 255, 255))
+        self.position = pygame.math.Vector2(250, 700)
+        size = 100;
+        for i in range(0, 11):
+            for j in range(0, 4):
+                pygame.draw.rect(self.image, ground_color, (i * size, j * size, size * .95, size * .95), width=0)
+        pygame.draw.circle(self.image, (255, 0, 0), (500, 300), 20)
+        pygame.draw.circle(self.image, (255, 0, 0), (200, 100), 20)
+
+        self.rect = self.image.get_rect()
+    
+    def update(self):
+        self.rect = self.image.get_rect(center=self.position - cameraPos)
+
+
 with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     vroom_controller = VROOMController(brick)
     pygame.init()
@@ -109,6 +132,8 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     vroomRP = pygame.sprite.RenderPlain((vroom))
     real_vroom = Vroom(vroom_controller)
     realVroomRP = pygame.sprite.RenderPlain((real_vroom))
+    ground = Ground()
+    grondRP = pygame.sprite.RenderPlain((ground))
     
     vroom_controller.add_obstacle_detected_listener(real_vroom.on_obstacle_detected)
     
@@ -139,12 +164,17 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
             vroom.position.update(real_vroom.position) 
             # effect
     
+        cameraPos = vroom.position - pygame.math.Vector2(500, 540)
+    
+        grondRP.update()
+        grondRP.draw(screen)
+    
         vroomRP.update()
         vroomRP.draw(screen)
-
+    
         realVroomRP.update()
         realVroomRP.draw(screen)
-
+    
         dt = clock.tick(FPS) / 1000
         pygame.display.update()
         pygame.display.flip()
