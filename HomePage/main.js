@@ -145,9 +145,7 @@ document.addEventListener("click", () => {
     ease: "power2.inOut",
     onComplete: () => {
       gsap.to(camera.position, { z: 5, duration: 1, delay: 1 });
-      setTimeout(() => {
-        window.location.assign("/camera-client");
-      }, 50);
+      window.location.assign("/camera-client");
     },
   });
 });
