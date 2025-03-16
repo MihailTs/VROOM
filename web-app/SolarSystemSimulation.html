@@ -54,8 +54,6 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    const controls = new OrbitControls( camera, renderer.domElement );
-
     const starsGeometry = new THREE.BufferGeometry();
     const starCount = 3000;
     const starPositions = [];
