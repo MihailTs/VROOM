@@ -26,6 +26,7 @@ body{
   display: flex;
   width: 100%;
   height: 100%;
+  justify-content: center;
 }
 
 .wrapper {
@@ -46,4 +47,9 @@ video {
   width: 100%;
   height: 100%;
   z-index: 2;
+}
+
+canvas{
+  position: absolute;
+  z-index: 0;
 }
