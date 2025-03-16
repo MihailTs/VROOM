@@ -27,7 +27,6 @@ function createCameraDisplay(peerId, delayedStream) {
   camera.muted = "muted";
   camera.srcObject = delayedStream;
   camera.autoplay = true;
-  camera.height = 400;
   camera.style.position = "relative";
   wrapper.appendChild(videoContainer);
 
