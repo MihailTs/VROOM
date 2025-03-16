@@ -5,10 +5,9 @@ pygame.init()
 
 screen = pygame.display.set_mode((640, 480),flags=pygame.RESIZABLE, vsync=True)
 pygame.display.set_caption("Hello World")
-dt = 0;
+dt = 0
 clock = pygame.time.Clock()
 FPS = 60
-
 
 class VroomPrediction (pygame.sprite.Sprite):
     def __init__(self):
@@ -56,6 +55,7 @@ while True:
             vroom.keydown(event.key)
         if event.type == pygame.KEYUP:
             vroom.keyup(event.key)
+        delayqueue.push(event)
     screen.fill((255, 255, 255))
 
     vroom.update()
