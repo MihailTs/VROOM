@@ -1,15 +1,20 @@
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Create geometry and material
 const geometry = new THREE.SphereGeometry(2, 30, 30); // increase the sphere size
-const texture = new THREE.TextureLoader().load('mars_texture.jpg'); // load Mars texture
+const texture = new THREE.TextureLoader().load("mars_texture.jpg"); // load Mars texture
 
 const material = new THREE.MeshStandardMaterial({
-  map: texture, 
+  map: texture,
 });
 
 // Create the sphere with the new material
@@ -31,7 +36,10 @@ for (let i = 0; i < starCount; i++) {
   positions.push((Math.random() - 0.5) * 100);
   positions.push((Math.random() - 0.5) * 100);
 }
-starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+starsGeometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(positions, 3)
+);
 const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3 });
 const stars = new THREE.Points(starsGeometry, starsMaterial);
 scene.add(stars);
@@ -41,16 +49,18 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // Cursor logic
-let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2; // Cursor starts at the center
-let outerX = mouseX, outerY = mouseY; // Current position of outer diamond
+let mouseX = window.innerWidth / 2,
+  mouseY = window.innerHeight / 2; // Cursor starts at the center
+let outerX = mouseX,
+  outerY = mouseY; // Current position of outer diamond
 const parallaxOffset = 15; // Strength of parallax effect
 const smoothness = 0.1; // Smoothness factor
 const elasticity = 0.2; // Elastic effect strength (how far it stretches beyond boundaries)
 
-const cursorOuter = document.querySelector('.cursor-outer');
-const cursorInner = document.querySelector('.cursor-inner');
-const text = document.querySelector('.text');
-const boundary = document.querySelector('.boundary');
+const cursorOuter = document.querySelector(".cursor-outer");
+const cursorInner = document.querySelector(".cursor-inner");
+const text = document.querySelector(".text");
+const boundary = document.querySelector(".boundary");
 
 // Boundary area
 const boundaryRect = boundary.getBoundingClientRect();
@@ -86,8 +96,12 @@ function animateCursor() {
   const offsetX = (elasticX - window.innerWidth / 2) / parallaxOffset;
   const offsetY = (elasticY - window.innerHeight / 2) / parallaxOffset;
 
-  cursorOuter.style.left = `${outerX - cursorOuter.offsetWidth / 2 + offsetX}px`;
-  cursorOuter.style.top = `${outerY - cursorOuter.offsetHeight / 2 + offsetY}px`;
+  cursorOuter.style.left = `${
+    outerX - cursorOuter.offsetWidth / 2 + offsetX
+  }px`;
+  cursorOuter.style.top = `${
+    outerY - cursorOuter.offsetHeight / 2 + offsetY
+  }px`;
 
   // Inner diamond follows the mouse exactly
   cursorInner.style.left = `${elasticX - cursorInner.offsetWidth / 2}px`;
@@ -99,7 +113,7 @@ function animateCursor() {
 }
 
 // Listen to mouse movement
-document.addEventListener('mousemove', (e) => {
+document.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
 
@@ -114,15 +128,15 @@ function checkCursor() {
   const intersects = raycaster.intersectObject(sphere);
 
   if (intersects.length > 0) {
-    document.body.style.cursor = 'pointer';
+    document.body.style.cursor = "pointer";
   } else {
-    document.body.style.cursor = 'auto'; 
+    document.body.style.cursor = "auto";
   }
 }
 
 // Click → zoom effect on sphere
 let zoomed = false;
-document.addEventListener('click', () => {
+document.addEventListener("click", () => {
   if (zoomed) return;
   zoomed = true;
   gsap.to(camera.position, {
@@ -131,7 +145,8 @@ document.addEventListener('click', () => {
     ease: "power2.inOut",
     onComplete: () => {
       gsap.to(camera.position, { z: 5, duration: 1, delay: 1 });
-    }
+      window.location.assign("/camera-client");
+    },
   });
 });
 
@@ -151,7 +166,7 @@ function animate() {
 animate();
 
 // Resize handler
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);

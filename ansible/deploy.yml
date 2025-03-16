@@ -1,0 +1,121 @@
+- name: Deploy Go app
+  hosts: tag_Role_webserver
+  remote_user: ubuntu
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+          - openssl
+        state: present
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Ensure Docker is installed
+      command: docker --version
+      register: docker_installed
+      changed_when: false
+
+    - name: Clone a GitHub repository
+      git:
+        repo: "https://github.com/MihailTs/VROOM"
+        dest: "/home/ubuntu/signal_server"
+        version: "cameras"
+        force: yes
+        update: yes
+
+    - name: Get EC2 public IP from inventory
+      debug:
+        msg: "EC2 Public IP: {{ inventory_hostname}}:3000"
+    
+    - name: Create a directory
+      ansible.builtin.file:
+        path: "/home/ubuntu/signal_server/certs"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Create SSL private key (private-key.pem)
+      ansible.builtin.openssl_privatekey:
+        path: "/home/ubuntu/signal_server/certs/private-key.pem"
+        size: 2048
+        type: RSA
+
+
+    - name: Create Certificate Signing Request (csr.pem)
+      openssl_csr:
+        path: "/home/ubuntu/signal_server/certs/csr.pem"
+        privatekey_path: "/home/ubuntu/signal_server/certs/private-key.pem"
+        subject:
+          C: "US"
+          ST: "State"
+          L: "City"
+          O: "My Organization"
+          CN: "localhost"
+        state: present
+
+    - name: Generate self-signed certificate (certificate.pem)
+      openssl_certificate:
+        path: "/home/ubuntu/signal_server/certs/certificate.pem"
+        privatekey_path: "/home/ubuntu/signal_server/certs/private-key.pem"
+        csr_path: "/home/ubuntu/signal_server/certs/csr.pem"
+        provider: selfsigned
+        state: present
+
+    - name: Create a .env for the camera
+      copy:
+        content: "VITE_SIGNALING_SERVER=https://{{ inventory_hostname }}"
+        dest: "/home/ubuntu/signal_server/camera/.env"
+
+    - name: Create a .env for the camera-client
+      copy:
+        content: "VITE_SIGNALING_SERVER=https://{{ inventory_hostname }}"
+        dest: "/home/ubuntu/signal_server/camera-client/.env"
+    - name: Stop existing Docker container
+      docker_container:
+        name: "signal_server"
+        state: absent
+    - name: Remove a Docker image
+      docker_image:
+        name: "signal_server"
+        state: absent
+
+    - name: Build Docker image from the Dockerfile
+      docker_image:
+        name: "signal_server"
+        tag: "latest"        
+        build:
+          path: "/home/ubuntu/signal_server"
+          args:
+            VITE_SIGNALING_SERVER: "https://{{ inventory_hostname }}"
+        source: build
+    - name: Run Docker container
+      docker_container:
+        name: "signal_server"
+        image: "signal_server:latest"
+        state: started
+        restart_policy: always
+        ports:
+          - "443:3000"
