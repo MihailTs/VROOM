@@ -17,12 +17,12 @@ class VROOMController:
 
     def check_ultrasound(self):
         while True:
-            if self._ultrasonic.get_distance() <= 30 and self._is_in_reverse == False:
+            if self._ultrasonic.get_distance() <= 20 and self._is_in_reverse == False:
                 self.stop()
 
     def move_straight(self):
         self._is_in_reverse = False
-        if self._ultrasonic.get_distance() <= 30:
+        if self._ultrasonic.get_distance() <= 20:
             return
         self._left_motor.run(power=-30, regulated=True)
         self._right_motor.run(power=-30, regulated=True)
@@ -33,18 +33,19 @@ class VROOMController:
         self._right_motor.run(power=30, regulated=True)
 
     def move_left(self):
+        print("here")
         self._is_in_reverse = False
-        if self._ultrasonic.get_distance() <= 30:
+        if self._ultrasonic.get_distance() <= 20:
             return
-        self._right_motor.run(power=30, regulated=True)
-        self._left_motor.run(power=-30, regulated=True)
+        self._right_motor.run(power=-30, regulated=True)
+        self._left_motor.run(power=30, regulated=True)
 
     def move_right(self):
         self._is_in_reverse = False
-        if self._ultrasonic.get_distance() <= 30:
+        if self._ultrasonic.get_distance() <= 20:
             return
-        self._left_motor.run(power=30, regulated=True)
-        self._right_motor.run(power=-30, regulated=True)
+        self._left_motor.run(power=-30, regulated=True)
+        self._right_motor.run(power=30, regulated=True)
 
     def stop(self):
         self._left_motor.brake()
