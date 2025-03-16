@@ -5,13 +5,13 @@ import nxt.locator
 from vroomcontroller import VROOMController
 
 class VroomPrediction (pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, color = (255, 0, 0)):
         super(VroomPrediction, self).__init__()
-        self.image = pygame.image.load("vroom.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (32, 32))
-        self.realImage = self.image
-        self.rect = self.image.get_rect()
+        self.image = pygame.Surface((64, 64), pygame.SRCALPHA)
+        pygame.draw.polygon(self.image, color, [(0, 64), (64, 64), (32, 0)])
+        self.original_image = self.image
         self.position = pygame.math.Vector2(320, 240)
+        self.rect = self.image.get_rect(topleft=self.position)
         self.rotation = 0
         self.w = 0
         self.velocity = pygame.math.Vector2(0, 0)
@@ -20,8 +20,9 @@ class VroomPrediction (pygame.sprite.Sprite):
     def update(self):
         self.position += self.velocity * dt
         self.rotation += self.w * dt
-        self.realImage = pygame.transform.rotate(self.image, self.rotation)
-        self.rect.update(self.position.x, self.position.y, self.rect.width, self.rect.height)
+        self.image = pygame.transform.rotate(self.original_image, self.rotation)
+        self.rect = self.image.get_rect(center=self.position)
+        #self.rect.update(self.position.x, self.position.y, self.rect.width, self.rect.height)
     
     def move_straight(self):
         rotation = self.rotation * pi / 180
@@ -93,22 +94,24 @@ class Vroom(VroomPrediction):
 with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
     vroom_controller = VROOMController(brick)
     pygame.init()
-
+    
     screen = pygame.display.set_mode((640, 480),flags=pygame.RESIZABLE, vsync=True)
     pygame.display.set_caption("VROOM")
     dt = 0
     clock = pygame.time.Clock()
     FPS = 60
-
+    
     speed = 50
     rotationSpeed = 50
     delayQueue = []
-
+    
     vroom = VroomPrediction()
+    vroomRP = pygame.sprite.RenderPlain((vroom))
     real_vroom = Vroom(vroom_controller)
-
+    realVroomRP = pygame.sprite.RenderPlain((real_vroom))
+    
     vroom_controller.add_obstacle_detected_listener(real_vroom.on_obstacle_detected)
-
+    
     while True:
         current_time = pygame.time.get_ticks()
         for event in pygame.event.get():
@@ -121,26 +124,26 @@ with nxt.locator.find(host='00:16:53:13:02:ED') as brick:
                     sys.exit()
             vroom.key(event)
             delayQueue.append([event, current_time + 4000])
-
+    
         while(delayQueue and delayQueue[0][1] <= current_time):
             event = delayQueue.pop(0)[0]
             real_vroom.key(event)
         
         screen.fill((255, 255, 255))
-
-        vroom.update()
-        real_vroom.update()
-
-        print("detected", real_vroom.is_obstacle_detected)
+    
+    
         if real_vroom.is_obstacle_detected:
             delayQueue = []
             real_vroom.is_obstacle_detected = False
             real_vroom.stop()
             vroom.position.update(real_vroom.position) 
-             # effect
+            # effect
+    
+        vroomRP.update()
+        vroomRP.draw(screen)
 
-        screen.blit(real_vroom.realImage, real_vroom.rect)
-        screen.blit(vroom.realImage, vroom.rect)
+        realVroomRP.update()
+        realVroomRP.draw(screen)
 
         dt = clock.tick(FPS) / 1000
         pygame.display.update()
