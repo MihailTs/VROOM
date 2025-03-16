@@ -26,9 +26,9 @@
     }
     #speedSlider {
       position: absolute;
-      bottom: 20px; /* Positioned at the bottom */
-      left: 50%; /* Centering the slider horizontally */
-      transform: translateX(-50%); /* To truly center it */
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       width: 300px;
       z-index: 10;
     }
@@ -53,8 +53,6 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-
-    const controls = new OrbitControls( camera, renderer.domElement );
 
     const starsGeometry = new THREE.BufferGeometry();
     const starCount = 3000;
@@ -153,7 +151,6 @@
 
     function animate() {
       requestAnimationFrame(animate);
-      // controls.update();
 
       // Apply the speed factor to each planet's base speed
       const speed1 = baseSpeed1 * speedFactor;
