@@ -65,7 +65,7 @@ class VroomPrediction (pygame.sprite.Sprite):
 
 class Vroom(VroomPrediction):
     def __init__(self, vroom_controller):
-        super().__init__()
+        super().__init__((0, 0, 255, 100))
         self._vroom_controller = vroom_controller
 
     def move_straight(self):
