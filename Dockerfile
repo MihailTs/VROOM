@@ -7,7 +7,7 @@ COPY camera /app/camera
 COPY certs /app/camera/certs
 COPY camera-client /app/camera-client
 COPY certs /app/camera-client/certs
-COPY Homepage /app/landing-page
+COPY HomePage /app/landing-page
 
 WORKDIR /app/camera
 RUN pnpm install
