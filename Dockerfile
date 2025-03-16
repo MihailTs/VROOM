@@ -7,6 +7,7 @@ COPY camera /app/camera
 COPY certs /app/camera/certs
 COPY camera-client /app/camera-client
 COPY certs /app/camera-client/certs
+COPY Homepage /app/landing-page
 
 WORKDIR /app/camera
 RUN pnpm install
@@ -32,6 +33,7 @@ RUN npm install -g pnpm
 COPY --from=build /app/server /app
 COPY --from=build  /app/camera/dist /app/camera
 COPY --from=build  /app/camera-client/dist /app/camera-client
+COPY --from=build  /app/landing-page /app/landing-page
 
 EXPOSE 3000
 
