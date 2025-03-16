@@ -1,11 +1,13 @@
 import { io } from "socket.io-client";
 import { Peer } from "peerjs";
+import "./style.css"
 
+const delay = 5000; // Delay in milliseconds
 const myPeer = new Peer();
 
 const SERVER = import.meta.env.VITE_SIGNALING_SERVER;
 
-const socket = io( SERVER, {
+const socket = io(SERVER, {
   reconnectionDelayMax: 10000,
 });
 
@@ -13,13 +15,31 @@ const app = document.getElementById("app");
 
 const cameras = new Map();
 
-function addVideoStream(video, stream) {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
-    video.play();
-  });
+function createCameraDisplay(peerId, delayedStream) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "wrapper"
 
-  app.appendChild(video); // Append the video element properly
+  const videoContainer = document.createElement("div")
+  videoContainer.className = "videoContainer"
+  const camera = document.createElement("video");
+  videoContainer.appendChild(camera)
+
+  camera.muted = "muted";
+  camera.srcObject = delayedStream;
+  camera.autoplay = true;
+  camera.height = 400;
+  camera.style.position = "relative";
+  wrapper.appendChild(videoContainer);
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay"
+
+  setTimeout(() => {
+    wrapper.append(overlay);
+  }, delay);
+
+  app.appendChild(wrapper);
+  cameras.set(peerId, wrapper);
 }
 
 myPeer.on("open", () => {
@@ -41,15 +61,9 @@ myPeer.on("open", () => {
 
       const delayedStream = new MediaStream([generator]);
 
-      const camera = document.createElement("video");
-      camera.muted = "muted";
-      camera.srcObject = delayedStream;
-      camera.autoplay = true;
-      app.appendChild(camera);
-      cameras.set(call.peer, camera);
+      createCameraDisplay(call.peer, delayedStream);
 
       const frameBuffer = [];
-      const delay = 5000; // Delay in milliseconds
 
       const writer = generator.writable.getWriter();
 
